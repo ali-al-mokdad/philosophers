@@ -3,55 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aal-mokd <aal-mokd@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 13:20:03 by aal-mokd          #+#    #+#             */
-/*   Updated: 2025/04/25 15:50:57 by aal-mokd         ###   ########.fr       */
+/*   Updated: 2025/05/13 23:05:14 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./philo.h"
+#include "philo.h"
 
-void	*thread_function(void *arg)
+int main(int argc, char **argv)
 {
-	int* num = (int*)arg;
-	printf("Thread started with value: %d\n", *num);
-	for (int i = 0; i < 5; i++)
-	{
-        printf("Thread working: %d\n", i);
-        usleep(50000);  // Sleep for 0.5 seconds (simulate work)
-    }
-
-    printf("Thread finished\n");
-    return NULL;
+    t_data data;
+    if (init_all(&data, argc, argv) != 0)
+        return (1);
+    // Create monitor
+    pthread_t monitor;
+    pthread_create(&monitor, NULL, monitor_routine, &data);
+    pthread_detach(monitor);
+    // Create all philosopher threads
+    for (int i = 0; i < data.number_of_philos; i++)
+        pthread_create(&data.philos[i].thread, NULL, philosopher_routine, &data.philos[i]);
+    for (int i = 0; i < data.number_of_philos; i++)
+        pthread_join(data.philos[i].thread, NULL);
+    return (0);
 }
 
-int	main(void)
-{
-	pthread_t thread1, thread2;   // Thread identifiers
-    int arg1 = 1, arg2 = 2;
-
-	if (pthread_create(&thread1, NULL, thread_function, &arg1) != 0) {
-        perror("Failed to create thread 1");
-        return 1;
-    }
-
-    // Create thread 2
-    if (pthread_create(&thread2, NULL, thread_function, &arg2) != 0) {
-        perror("Failed to create thread 2");
-        return 2;
-    }
-	printf("Main waiting for thread to finish...\n");
-	if (pthread_join(thread1, NULL) != 0) {
-        perror("Failed to join thread 1");
-        return 3;
-    }
-
-    // Wait for thread 2 to finish
-    if (pthread_join(thread2, NULL) != 0) {
-        perror("Failed to join thread 2");
-        return 4;
-    }
-	printf("the thread is finish !\n");
-	return (0);
-}

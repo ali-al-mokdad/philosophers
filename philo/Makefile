@@ -1,24 +1,21 @@
 NAME = philo
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -g  -I$(INCLUDES)
-INCLUDES = -I./includes
+CFLAGS = -Wall -Wextra -Werror -pthread
 
-SRCS = main.c \
-	
+SRCS = main.c routine.c init.c monitor.c utils.c
+OBJS = $(SRCS:.c=.o)
 
-OBJECTS = $(SRCS:.c=.o)
+all: $(NAME)
 
-all: $(NAME) clean
-
-$(NAME): $(OBJECTS) 
-	$(CC) $(CFLAGS) $(OBJECTS) -o $(NAME) 
-
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(OBJS)
+
 fclean: clean
 	rm -f $(NAME)
+
 re: fclean all
 
-.PHONY: all clean fclean re
